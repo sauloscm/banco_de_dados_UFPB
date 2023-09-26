@@ -69,27 +69,24 @@ CREATE TABLE Itens_venda(
 
 
 CREATE TABLE Vendas(
-	cod_Vendas SERIAL PRIMARY KEY,
+	cod_vendas SERIAL PRIMARY KEY NOT NULL ,
 	cod_itens smallint unique NOT NULL,
 	cod_Funcionario smallint unique NOT NULL,
 	cod_Cliente smallint unique NOT NULL,
+	cod_Produto smallint unique NOT NULL,
 	Num_mesa smallint NOT NULL,
 	Valor_comissao DECIMAL(20),
 	Quant_Produto INTEGER,
 	Valor_compra DECIMAL(20) NOT NULL,
-	Data_ date,
+	Data_ VARCHAR(20),
 	
 	FOREIGN KEY(cod_Cliente) REFERENCES Cliente(Cod_Cliente),
 	FOREIGN KEY(cod_Funcionario) REFERENCES Funcionarios(Cod_Funcionario),
-	FOREIGN KEY(cod_itens) REFERENCES Itens_venda(Cod_itens)
+	FOREIGN KEY(cod_itens) REFERENCES Itens_venda(Cod_itens),
+	FOREIGN KEY(cod_Produto) REFERENCES Produto(Cod_Produto)
 
 );
 
 INSERT INTO Cliente VALUES('001','Bruno Andrade','001.026.531-76','M','brunoandrade@gmail.com');
 INSERT INTO Cliente VALUES('002','Miguel Cezar','024.079.526-80','M','miguelcezar@gmail.com');
 INSERT INTO FUNCIONARIOS VALUES(1,'Arthur Chaves','610.504.632-60','M','arthurchaves01@gmail.com','1500.50','Atendente','164.30');
-
-
-
-
-
