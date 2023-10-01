@@ -88,7 +88,10 @@ class Cliente(Connection):
             sql = "SELECT * FROM cliente WHERE sexo = %s"
         if column == "email":
             sql = "SELECT * FROM cliente WHERE email LIKE %s"
+        if column == "todos":
+            sql = "SELECT * FROM cliente"
         data = self.query(sql, args)
+
         if data:
             return data
         return "Registro não encontrado"
@@ -339,8 +342,107 @@ class Vendas(Connection):
 
 
 
+
+
+
+
+def exibir_menu():
+    print("Selecione uma opção:")
+    print("1. Inserir")
+    print("2. Atualizar")
+    print("3. Excluir")
+    print("4. Pesquisar por")
+    print("5. Listar todos")
+    print("6. Exibir um")
+    print("7. Gerar relatório")
+    print("0. Sair")
+
+def menu_inserir():
+    nome = input("Digite o nome do cliente: ")
+    cpf = input("Digite o cpf do cliente: ")
+    sexo = input("Digite o sexo do cliente: ")
+    email = input("Digite o email do cliente: ")
+    client.insert(nome, cpf, sexo, email)
+
+def menu_atualizar():
+    id_update = input("Digite o id do cliente que quer atualizar: ")
+    nome = input("Digite o novo nome do cliente: ")
+    cpf = input("Digite o novo cpf do cliente: ")
+    sexo = input("Digite o novo sexo do cliente: ")
+    email = input("Digite o novo email do cliente: ")
+    client.update(id_update, nome, cpf, sexo, email)
+
+def menu_excluir():
+    id_delete = input("Digite o id do cliente que quer deletar: ")
+    client.delete(id_delete)
+
+def menu_pesquisar_por():
+    print("1. Nome")
+    print("2. CPF")
+    print("3. Sexo")
+    print("4. Email")
+    valor_de_pesquisa = input("Selecione uma opção de pesquisa: ")
+    if valor_de_pesquisa == "1":
+        aux_pesquisa = input("Digite o Nome que deseja pesquisar: ")
+        client.search("nome", aux_pesquisa)
+    elif valor_de_pesquisa == "2":
+        aux_pesquisa = input("Digite o CPF que deseja pesquisar: ")
+        client.search("cpf", aux_pesquisa)
+    elif valor_de_pesquisa == "3":
+        aux_pesquisa = input("Digite o Sexo que deseja pesquisar: ")
+        client.search("sexo", aux_pesquisa)
+    elif valor_de_pesquisa == "4":
+        aux_pesquisa = input("Digite o Email que deseja pesquisar: ")
+        client.search("email", aux_pesquisa)
+
+def menu_listar_todos():
+    client.search(0, "todos")
+
+def menu_exibir_um():
+    valor_de_pesquisa = input("Digite o id que deseja pesquisar: ")
+    client.search(valor_de_pesquisa)
+
+#def menu_gerar_relatorio():
+
 if __name__ == "__main__":
     client = Cliente()
-    #client.insert("Carlaum", "123.234.345-90", "F", "test@gmail.com")
-    client.delete(4)
-    client.update(7, "edu", "123455636", "M", "t@uolpocutom")
+    while True:
+        exibir_menu()
+        opcao = input("Opção: ")
+
+        if opcao == "1":
+            menu_inserir()
+
+        elif opcao == "2":
+            menu_atualizar()
+
+        elif opcao == "3":
+            menu_excluir()
+
+        elif opcao == "4":
+            menu_pesquisar_por()
+
+        elif opcao == "5":
+            menu_listar_todos()
+
+        elif opcao == "6":
+            menu_exibir_um()
+
+        #elif opcao == "7":
+            #menu_gerar_relatorio()
+
+        elif opcao == "0":
+            break
+
+        else:
+            print("Opção inválida. Tente novamente.")
+
+
+
+# if __name__ == "__main__":
+#     #client = Cliente()
+#     #client.insert("Carlaum", "123.234.345-90", "F", "test@gmail.com")
+#     #client.delete(4)
+#     #client.update(7, "edu", "123455636", "M", "t@uolpocutom")
+#     client = Cliente()
+#     menu_inserir()
