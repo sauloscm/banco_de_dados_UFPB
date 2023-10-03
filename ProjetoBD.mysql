@@ -9,8 +9,6 @@ SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
 
-
-
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -21,72 +19,62 @@ DROP TABLE IF EXISTS Produto;
 DROP TABLE IF EXISTS Funcionarios;
 DROP TABLE IF EXISTS Cliente;
 
-
-
 CREATE TABLE Cliente(
-	Cod_Cliente smallint unique NOT NULL,
-	Nome VARCHAR(50) NOT NULL,
-	CPF VARCHAR(20) unique,
-	Sexo CHAR(1) NOT NULL,
-	Email VARCHAR(50) unique NOT NULL,
-	CONSTRAINT ck_sexo CHECK (sexo IN('F', 'M','O')),
-	PRIMARY KEY(Cod_Cliente)
+	cod_cliente INTEGER PRIMARY KEY NOT NULL DEFAULT nextval('cod_cliente'::regclass),
+	nome VARCHAR(50) NOT NULL,
+	cpf VARCHAR(20) unique,
+	sexo CHAR(1) NOT NULL,
+	email VARCHAR(50) unique NOT NULL,
+	CONSTRAINT ck_sexo CHECK (sexo IN('F', 'M','O'))
 );
 
 CREATE TABLE Funcionarios(
-
-	Cod_Funcionario SERIAL PRIMARY KEY,
-	Nome VARCHAR (50) NOT NULL,
-	CPF VARCHAR(20) unique,
-	Sexo CHAR(1) NOT NULL,
-	Email VARCHAR(50) unique NOT NULL,
-	Salario DECIMAL(7,2),
-	Funcao VARCHAR (30) NOT NULL,
-	Comissoes DECIMAL(7,2),
+	cod_funcionario INTEGER PRIMARY KEY NOT NULL DEFAULT nextval('cod_funcionario'::regclass),
+	nome VARCHAR (50) NOT NULL,
+	cpf VARCHAR(20) unique,
+	sexo CHAR(1) NOT NULL,
+	email VARCHAR(50) unique NOT NULL,
+	salario DECIMAL(7,2),
+	funcao VARCHAR (30) NOT NULL,
+	comissoes DECIMAL(7,2),
 	CONSTRAINT ck_sexo CHECK (sexo IN('F','M','O'))
 	
 );
 
 CREATE TABLE Produto(
-
-	Cod_Produto SERIAL PRIMARY KEY,
-	Quant_estoque INT,
-	Validade VARCHAR(20),
-	Fabricante VARCHAR(50),
-	Valor DECIMAL(7,2),	
-	Marca VARCHAR(50)
+	cod_produto INTEGER PRIMARY KEY NOT NULL DEFAULT nextval('cod_produto'::regclass),
+	quant_estoque INT,
+	validade VARCHAR(20),
+	fabricante VARCHAR(50),
+	valor DECIMAL(7,2),	
+	marca VARCHAR(50)
 	
 );
 
-CREATE TABLE Itens_vendas(
-
-	Cod_itens SERIAL PRIMARY KEY,
-	Cod_Produto smallint unique NOT NULL,
-	Tipo VARCHAR(20),
-	Quant_comp smallint unique NOT null,
-	FOREIGN KEY(Cod_produto) REFERENCES Produto(Cod_Produto)
+CREATE TABLE Itens_venda(
+	cod_itens INTEGER PRIMARY KEY NOT NULL DEFAULT nextval('cod_itens'::regclass),
+	cod_produto smallint unique NOT NULL,
+	tipo VARCHAR(20),
+	quant_comp smallint unique NOT null,
+	FOREIGN KEY(cod_produto) REFERENCES Produto(cod_produto)
 );
 
 
 CREATE TABLE Vendas(
-	cod_vendas SERIAL PRIMARY KEY NOT NULL ,
-	cod_itens smallint unique NOT NULL,
-	cod_Funcionario smallint unique NOT NULL,
-	cod_Cliente smallint unique NOT NULL,
-	cod_Produto smallint unique NOT NULL,
-	Num_mesa smallint NOT NULL,
-	Valor_comissao DECIMAL(20),
-	Quant_Produto INTEGER,
-	Valor_compra DECIMAL(20) NOT NULL,
-	Data_ VARCHAR(20),
+	cod_vendas INTEGER PRIMARY KEY NOT NULL DEFAULT nextval('cod_vendas'::regclass),
+	cod_itens INTEGER unique NOT NULL,
+	cod_funcionario INTEGER unique NOT NULL,
+	cod_cliente INTEGER unique NOT NULL,
+	cod_produto INTEGER unique NOT NULL,
+	num_mesa smallint NOT NULL,
+	valor_comissao DECIMAL(20),
+	quant_produto INTEGER,
+	valor_compra DECIMAL(20) NOT NULL,
+	data_ VARCHAR(20),
 	
-	FOREIGN KEY(cod_Cliente) REFERENCES Cliente(Cod_Cliente),
-	FOREIGN KEY(cod_Funcionario) REFERENCES Funcionario(Cod_Funcionario),
-	FOREIGN KEY(cod_itens) REFERENCES itens_vendas(Cod_itens),
-	FOREIGN KEY(cod_Produto) REFERENCES Produto(Cod_Produto)
+	FOREIGN KEY(cod_cliente) REFERENCES Cliente(cod_cliente),
+	FOREIGN KEY(cod_funcionario) REFERENCES Funcionarios(cod_funcionario),
+	FOREIGN KEY(cod_itens) REFERENCES Itens_venda(cod_itens),
+	FOREIGN KEY(cod_produto) REFERENCES Produto(cod_Produto)
 
 );
-
-INSERT INTO Cliente VALUES('001','Bruno Andrade','001.026.531-76','M','brunoandrade@gmail.com');
-INSERT INTO Cliente VALUES('002','Miguel Cezar','024.079.526-80','M','miguelcezar@gmail.com');
-INSERT INTO FUNCIONARIOS VALUES(1,'Arthur Chaves','610.504.632-60','M','arthurchaves01@gmail.com','1500.50','Atendente','164.30');
