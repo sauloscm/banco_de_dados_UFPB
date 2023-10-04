@@ -234,16 +234,16 @@ class ItensVendas(Connection):
         Connection.__init__(self)
 
     def insert(self, *args):
-        sql = "INSERT INTO itens_vendas (Cod_produto, tipo, quant_comp) VALUES (%s, %s, %s);"
+        sql = "INSERT INTO itens_venda (Cod_produto, tipo, quant_comp) VALUES (%s, %s, %s);"
         self.execute(sql, args)
         self.commit()
 
     def delete(self, id):
         try:
-            sql_s = f"SELECT * FROM itens_vendas WHERE cod_itens = {id}"
+            sql_s = f"SELECT * FROM itens_venda WHERE cod_itens = {id}"
             if not self.query(sql_s):
                 return "Registro não encontrado para deletar."
-            sql_d = f"DELETE FROM itens_vendas WHERE cod_itens = {id}"
+            sql_d = f"DELETE FROM itens_venda WHERE cod_itens = {id}"
             self.execute(sql_d)
             self.commit()
             return "Registro deletado"
@@ -252,7 +252,7 @@ class ItensVendas(Connection):
 
     def update(self, id, *args):
         try:
-            sql = f"UPDATE itens_vendas SET cod_produto = %s, tipo = %s, quant_comp = %s WHERE cod_itens = {id}"
+            sql = f"UPDATE itens_venda SET cod_produto = %s, tipo = %s, quant_comp = %s WHERE cod_itens = {id}"
             self.execute(sql, args)
             self.commit()
             print("Registro atualizado")
@@ -260,13 +260,13 @@ class ItensVendas(Connection):
             print("Erro ao atualizar", e)
 
     def search(self, *args, column="cod_itens"):
-        sql =  "SELECT * FROM itens_vendas WHERE cod_itens = %s"
+        sql =  "SELECT * FROM itens_venda WHERE cod_itens = %s"
         if column == "cod_produto":
-            sql = "SELECT * FROM itens_vendas WHERE cod_produto = %s"
+            sql = "SELECT * FROM itens_venda WHERE cod_produto = %s"
         if column == "tipo":
-            sql = "SELECT * FROM itens_vendas WHERE tipo LIKE %s"
+            sql = "SELECT * FROM itens_venda WHERE tipo LIKE %s"
         if column == "quant_comp":
-            sql = "SELECT * FROM itens_vendas WHERE quant_comp LIKE %s"
+            sql = "SELECT * FROM itens_venda WHERE quant_comp LIKE %s"
 
         data = self.query(sql, args)
         if data:
@@ -283,16 +283,19 @@ class ItensVendas(Connection):
             print("Erro ao inserir", e)
 
     def list_all(self):
-        return self.query("SELECT * FROM itens_vendas;")
+        return self.query("SELECT * FROM itens_venda;")
 
 class Vendas(Connection):
     def __init__(self):
         Connection.__init__(self)
 
     def insert(self, *args):
-        sql = "INSERT INTO vendas (cod_itens, cod_funcionario, cod_cliente, cod_produto, num_mesa, valor_comissao, quant_produto, valor_compra, data_) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);"
-        self.execute(sql, args)
-        self.commit()
+        try:
+            sql = "INSERT INTO vendas (cod_itens, cod_funcionario, cod_cliente, cod_produto, num_mesa, valor_comissao, quant_produto, valor_compra, data_) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);"
+            self.execute(sql, args)
+            self.commit()
+        except Exception as e:
+            print("Erro ao inserir", e)
 
     def delete(self, id):
         try:
@@ -402,7 +405,7 @@ def menu_pesquisar_por(cliente):
         resultado = cliente.search(aux_pesquisa, column="email")
     else:
         resultado = "Opção inválida."
-    
+
     if resultado:
         if isinstance(resultado, str):
             print(resultado)
@@ -413,12 +416,15 @@ def menu_pesquisar_por(cliente):
         print("Nenhum resultado encontrado.")
 
 def menu_listar_todos(cliente):
-    resultado = cliente.list_all()
-    if resultado:
-        for row in resultado:
-            print(row)
-    else:
-        print("Nenhum registro encontrado.")
+    try:
+        resultado = cliente.list_all()
+        if resultado:
+            for row in resultado:
+                print(row)
+        else:
+            print("Nenhum registro encontrado.")
+    except Exception as e:
+        print("Erro ao deletar", e)
 
 def menu_exibir_um(cliente):
     valor_de_pesquisa = input("Digite o id que deseja exibir: ")
@@ -435,6 +441,98 @@ def menu_exibir_um(cliente):
 def menu_inserir_csv(cliente):
     filename = input("Digite o nome do arquivo CSV para inserção: ")
     cliente.insert_csv(filename)
+
+def menu_inserir_funcionario(funcionario):
+    nome = input("Digite o nome: ")
+    cpf = input("Digite o CPF: ")
+    sexo = input("Digite o sexo: ")
+    email = input("Digite o email: ")
+    salario = input("Digite o salario: ")
+    funcao = input("Digite o funcao: ")
+    comissoes = input("Digite o comissoes: ")
+    funcionario.insert(nome, cpf, sexo, email, salario, funcao, comissoes)
+
+def menu_atualizar_funcionario(funcionario):
+    id_update = input("Digite o id que deseja atualizar: ")
+    nome = input("Digite o novo nome: ")
+    cpf = input("Digite o novo CPF: ")
+    sexo = input("Digite o novo sexo: ")
+    email = input("Digite o novo email: ")
+    salario = input("Digite o salario: ")
+    funcao = input("Digite o funcao: ")
+    comissoes = input("Digite as comissoes: ")
+    funcionario.update(id_update, nome, cpf, sexo, email, salario, funcao, comissoes)
+
+def menu_excluir_funcionario(funcionario):
+    id_delete = input("Digite o id que deseja excluir: ")
+    funcionario.delete(id_delete)
+
+def menu_pesquisar_por_funcionario(cliente):
+    print("1. Nome")
+    print("2. CPF")
+    print("3. Sexo")
+    print("4. Email")
+    print("5. Salário")
+    print("6. Função")
+    print("7. Comissões")
+    valor_de_pesquisa = input("Selecione uma opção de pesquisa: ")
+    if valor_de_pesquisa == "1":
+        aux_pesquisa = input("Digite o nome que deseja pesquisar: ")
+        resultado = cliente.search(aux_pesquisa, column="nome")
+    elif valor_de_pesquisa == "2":
+        aux_pesquisa = input("Digite o CPF que deseja pesquisar: ")
+        resultado = cliente.search(aux_pesquisa, column="cpf")
+    elif valor_de_pesquisa == "3":
+        aux_pesquisa = input("Digite o sexo que deseja pesquisar: ")
+        resultado = cliente.search(aux_pesquisa, column="sexo")
+    elif valor_de_pesquisa == "4":
+        aux_pesquisa = input("Digite o email que deseja pesquisar: ")
+        resultado = cliente.search(aux_pesquisa, column="email")
+    elif valor_de_pesquisa == "5":
+        aux_pesquisa = input("Digite o salario que deseja pesquisar: ")
+        resultado = cliente.search(aux_pesquisa, column="salario")
+    elif valor_de_pesquisa == "6":
+        aux_pesquisa = input("Digite a funcao que deseja pesquisar: ")
+        resultado = cliente.search(aux_pesquisa, column="funcao")
+    elif valor_de_pesquisa == "7":
+        aux_pesquisa = input("Digite a comissoes que deseja pesquisar: ")
+        resultado = cliente.search(aux_pesquisa, column="comissoes")
+    else:
+        resultado = "Opção inválida."
+
+    if resultado:
+        if isinstance(resultado, str):
+            print(resultado)
+        else:
+            for row in resultado:
+                print(row)
+    else:
+        print("Nenhum resultado encontrado.")
+
+def menu_listar_todos_funcionario(funcionario):
+    resultado = funcionario.list_all()
+    if resultado:
+        for row in resultado:
+            print(row)
+    else:
+        print("Nenhum registro encontrado.")
+
+def menu_exibir_um_funcionario(funcionario):
+    valor_de_pesquisa = input("Digite o id que deseja exibir: ")
+    resultado = funcionario.search(valor_de_pesquisa)
+    if resultado:
+        if isinstance(resultado, str):
+            print(resultado)
+        else:
+            for row in resultado:
+                print(row)
+    else:
+        print("Nenhum resultado encontrado.")
+
+def menu_inserir_csv_funcionario(funcionario):
+    filename = input("Digite o nome do arquivo CSV para inserção: ")
+    funcionario.insert_csv(filename)
+
 
 def menu_inserir_produto(produto):
     quant_estoque = input("Digite a quantidade em estoque: ")
@@ -481,7 +579,7 @@ def menu_pesquisar_por_produto(produto):
         resultado = produto.search(aux_pesquisa, column="marca")
     else:
         resultado = "Opção inválida."
-    
+
     if resultado:
         if isinstance(resultado, str):
             print(resultado)
@@ -511,40 +609,40 @@ def menu_exibir_um_produto(produto):
     else:
         print("Nenhum resultado encontrado.")
 
-def menu_inserir_itens_vendas(itens_vendas):
+def menu_inserir_itens_venda(itens_venda):
     cod_produto = input("Digite o código do produto: ")
     tipo = input("Digite o tipo: ")
     quant_comp = input("Digite a quantidade comprada: ")
-    itens_vendas.insert(cod_produto, tipo, quant_comp)
+    itens_venda.insert(cod_produto, tipo, quant_comp)
 
-def menu_atualizar_itens_vendas(itens_vendas):
+def menu_atualizar_itens_venda(itens_venda):
     id_update = input("Digite o id que deseja atualizar: ")
     cod_produto = input("Digite o novo código do produto: ")
     tipo = input("Digite o novo tipo: ")
     quant_comp = input("Digite a nova quantidade comprada: ")
-    itens_vendas.update(id_update, cod_produto, tipo, quant_comp)
+    itens_venda.update(id_update, cod_produto, tipo, quant_comp)
 
-def menu_excluir_itens_vendas(itens_vendas):
+def menu_excluir_itens_venda(itens_venda):
     id_delete = input("Digite o id que deseja excluir: ")
-    itens_vendas.delete(id_delete)
+    itens_venda.delete(id_delete)
 
-def menu_pesquisar_por_itens_vendas(itens_vendas):
+def menu_pesquisar_por_itens_venda(itens_venda):
     print("1. Código do Produto")
     print("2. Tipo")
     print("3. Quantidade Comprada")
     valor_de_pesquisa = input("Selecione uma opção de pesquisa: ")
     if valor_de_pesquisa == "1":
         aux_pesquisa = input("Digite o código do produto que deseja pesquisar: ")
-        resultado = itens_vendas.search(aux_pesquisa, column="cod_produto")
+        resultado = itens_venda.search(aux_pesquisa, column="cod_produto")
     elif valor_de_pesquisa == "2":
         aux_pesquisa = input("Digite o tipo que deseja pesquisar: ")
-        resultado = itens_vendas.search(aux_pesquisa, column="tipo")
+        resultado = itens_venda.search(aux_pesquisa, column="tipo")
     elif valor_de_pesquisa == "3":
         aux_pesquisa = input("Digite a quantidade comprada que deseja pesquisar: ")
-        resultado = itens_vendas.search(aux_pesquisa, column="quant_comp")
+        resultado = itens_venda.search(aux_pesquisa, column="quant_comp")
     else:
         resultado = "Opção inválida."
-    
+
     if resultado:
         if isinstance(resultado, str):
             print(resultado)
@@ -554,17 +652,17 @@ def menu_pesquisar_por_itens_vendas(itens_vendas):
     else:
         print("Nenhum resultado encontrado.")
 
-def menu_listar_todos_itens_vendas(itens_vendas):
-    resultado = itens_vendas.list_all()
+def menu_listar_todos_itens_venda(itens_venda):
+    resultado = itens_venda.list_all()
     if resultado:
         for row in resultado:
             print(row)
     else:
         print("Nenhum registro encontrado.")
 
-def menu_exibir_um_itens_vendas(itens_vendas):
+def menu_exibir_um_itens_venda(itens_venda):
     valor_de_pesquisa = input("Digite o id que deseja exibir: ")
-    resultado = itens_vendas.search(valor_de_pesquisa)
+    resultado = itens_venda.search(valor_de_pesquisa)
     if resultado:
         if isinstance(resultado, str):
             print(resultado)
@@ -643,7 +741,7 @@ def menu_pesquisar_por_vendas(vendas):
         resultado = vendas.search(aux_pesquisa, column="data_")
     else:
         resultado = "Opção inválida."
-    
+
     if resultado:
         if isinstance(resultado, str):
             print(resultado)
@@ -717,19 +815,19 @@ def main():
                 exibir_menu()
                 opcao_funcionario = input("\nDigite o número da opção desejada: ")
                 if opcao_funcionario == "1":
-                    menu_inserir(funcionario)
+                    menu_inserir_funcionario(funcionario)
                 elif opcao_funcionario == "2":
-                    menu_atualizar(funcionario)
+                    menu_atualizar_funcionario(funcionario)
                 elif opcao_funcionario == "3":
-                    menu_excluir(funcionario)
+                    menu_excluir_funcionario(funcionario)
                 elif opcao_funcionario == "4":
-                    menu_pesquisar_por(funcionario)
+                    menu_pesquisar_por_funcionario(funcionario)
                 elif opcao_funcionario == "5":
-                    menu_listar_todos(funcionario)
+                    menu_listar_todos_funcionario(funcionario)
                 elif opcao_funcionario == "6":
-                    menu_exibir_um(funcionario)
+                    menu_exibir_um_funcionario(funcionario)
                 elif opcao_funcionario == "7":
-                    menu_inserir_csv(funcionario)
+                    menu_inserir_csv_funcionario(funcionario)
                 elif opcao_funcionario == "0":
                     break
                 else:
@@ -758,25 +856,25 @@ def main():
                 else:
                     print("Opção inválida.")
         elif opcao == "4":
-            itens_vendas = ItensVendas()
+            itens_venda = ItensVendas()
             while True:
                 exibir_menu()
-                opcao_itens_vendas = input("\nDigite o número da opção desejada: ")
-                if opcao_itens_vendas == "1":
-                    menu_inserir_itens_vendas(itens_vendas)
-                elif opcao_itens_vendas == "2":
-                    menu_atualizar_itens_vendas(itens_vendas)
-                elif opcao_itens_vendas == "3":
-                    menu_excluir_itens_vendas(itens_vendas)
-                elif opcao_itens_vendas == "4":
-                    menu_pesquisar_por_itens_vendas(itens_vendas)
-                elif opcao_itens_vendas == "5":
-                    menu_listar_todos_itens_vendas(itens_vendas)
-                elif opcao_itens_vendas == "6":
-                    menu_exibir_um_itens_vendas(itens_vendas)
-                elif opcao_itens_vendas == "7":
-                    menu_inserir_csv(itens_vendas)
-                elif opcao_itens_vendas == "0":
+                opcao_itens_venda = input("\nDigite o número da opção desejada: ")
+                if opcao_itens_venda == "1":
+                    menu_inserir_itens_venda(itens_venda)
+                elif opcao_itens_venda == "2":
+                    menu_atualizar_itens_venda(itens_venda)
+                elif opcao_itens_venda == "3":
+                    menu_excluir_itens_venda(itens_venda)
+                elif opcao_itens_venda == "4":
+                    menu_pesquisar_por_itens_venda(itens_venda)
+                elif opcao_itens_venda == "5":
+                    menu_listar_todos_itens_venda(itens_venda)
+                elif opcao_itens_venda == "6":
+                    menu_exibir_um_itens_venda(itens_venda)
+                elif opcao_itens_venda == "7":
+                    menu_inserir_csv(itens_venda)
+                elif opcao_itens_venda == "0":
                     break
                 else:
                     print("Opção inválida.")
