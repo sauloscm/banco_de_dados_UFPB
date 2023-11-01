@@ -6,10 +6,10 @@ class Config:
         self.config = {
             "dbproject": {
                 "user": "postgres",
-                "password": "1234",
+                "password": "12345678",
                 "host": "localhost",
                 "port": "5432",
-                "database": "ProjetoBD"
+                "database": "dbproject"
             }
         }
 

@@ -52,10 +52,12 @@ class Cliente(Connection):
         Connection.__init__(self)
 
     def insert(self, *args):
-        sql = "INSERT INTO cliente (nome, cpf, sexo, email) VALUES (%s, %s, %s, %s);"
-        self.execute(sql, args)
-        self.commit()
-
+        try:
+            sql = "INSERT INTO cliente (nome, cpf, sexo, email) VALUES (%s, %s, %s, %s);"
+            self.execute(sql, args)
+            self.commit()
+        except Exception as e:
+            print("Erro ao inserir", e)
     def delete(self, id):
         try:
             sql_s = f"SELECT * FROM cliente WHERE cod_cliente = {id}"
@@ -162,10 +164,12 @@ class Funcionario(Connection):
         try:
             data = csv.DictReader(open(filename, encoding="utf-8"))
             for row in data:
+                print("Inserindo registro:", row)
                 self.insert(row["nome"], row["cpf"], row["sexo"], row["email"], row["salario"], row["funcao"], row["comissoes"])
             print("Registros inseridos")
         except Exception as e:
             print("Erro ao inserir", e)
+
 
     def list_all(self):
         return self.query("SELECT * FROM funcionario;")
@@ -363,7 +367,7 @@ def exibir_menu():
     print("4. Pesquisar por")
     print("5. Listar todos")
     print("6. Exibir um")
-    print("7. Inserir CSV")
+    print("7. Gerar relatorio")
     print("0. Sair")
 
 def menu_inserir(cliente):
@@ -438,7 +442,7 @@ def menu_exibir_um(cliente):
     else:
         print("Nenhum resultado encontrado.")
 
-def menu_inserir_csv(cliente):
+def menu_gerar_relatorio(cliente):
     filename = input("Digite o nome do arquivo CSV para inserção: ")
     cliente.insert_csv(filename)
 
@@ -529,7 +533,7 @@ def menu_exibir_um_funcionario(funcionario):
     else:
         print("Nenhum resultado encontrado.")
 
-def menu_inserir_csv_funcionario(funcionario):
+def menu_gerar_relatorio_funcionario(funcionario):
     filename = input("Digite o nome do arquivo CSV para inserção: ")
     funcionario.insert_csv(filename)
 
@@ -673,16 +677,20 @@ def menu_exibir_um_itens_venda(itens_venda):
         print("Nenhum resultado encontrado.")
 
 def menu_inserir_vendas(vendas):
-    cod_itens = input("Digite o código dos itens: ")
-    cod_funcionario = input("Digite o código do funcionário: ")
-    cod_cliente = input("Digite o código do cliente: ")
-    cod_produto = input("Digite o código do produto: ")
-    num_mesa = input("Digite o número da mesa: ")
-    valor_comissão = input("Digite o valor da comissao: ")
-    quant_produto = input("Digite a quantidade de produtos: ")
-    valor_compra = input("Digite o valor da compra: ")
-    data_ = input("Digite a data: ")
-    vendas.insert(cod_itens, cod_funcionario, cod_cliente, cod_produto, num_mesa, valor_comissão, quant_produto, valor_compra, data_)
+    try:
+        cod_itens = input("Digite o código dos itens: ")
+        cod_funcionario = input("Digite o código do funcionário: ")
+        cod_cliente = input("Digite o código do cliente: ")
+        cod_produto = input("Digite o código do produto: ")
+        num_mesa = input("Digite o número da mesa: ")
+        valor_comissão = input("Digite o valor da comissao: ")
+        quant_produto = input("Digite a quantidade de produtos: ")
+        valor_compra = float(cod_produto) * float(quant_produto)
+        data_ = input("Digite a data: ")
+        vendas.insert(cod_itens, cod_funcionario, cod_cliente, cod_produto, num_mesa, valor_comissão, quant_produto, valor_compra, data_)
+    except Exception as e:
+        print("Erro ao listar vendas",e)
+
 
 def menu_atualizar_vendas(vendas):
     id_update = input("Digite o id que deseja atualizar: ")
@@ -694,6 +702,7 @@ def menu_atualizar_vendas(vendas):
     valor_comissão = input("Digite o novo valor da comissao: ")
     quant_produto = input("Digite a nova quantidade de produtos: ")
     valor_compra = input("Digite o novo valor da compra: ")
+ 
     data_ = input("Digite a nova data: ")
     vendas.update(id_update, cod_itens, cod_funcionario, cod_cliente, cod_produto, num_mesa, valor_comissão, quant_produto, valor_compra, data_)
 
@@ -752,12 +761,16 @@ def menu_pesquisar_por_vendas(vendas):
         print("Nenhum resultado encontrado.")
 
 def menu_listar_todos_vendas(vendas):
-    resultado = vendas.list_all()
-    if resultado:
-        for row in resultado:
-            print(row)
-    else:
-        print("Nenhum registro encontrado.")
+    try:
+        resultado = vendas.list_all()
+        if resultado:
+            for row in resultado:
+                print(row)
+        else:
+            print("Nenhum registro encontrado.")
+    
+    except Exception as e:
+      print("Erro ao listar as vendas",e)
 
 def menu_exibir_um_vendas(vendas):
     valor_de_pesquisa = input("Digite o id que deseja exibir: ")
@@ -804,7 +817,7 @@ def main():
                 elif opcao_cliente == "6":
                     menu_exibir_um(cliente)
                 elif opcao_cliente == "7":
-                    menu_inserir_csv(cliente)
+                    menu_gerar_relatorio(cliente)
                 elif opcao_cliente == "0":
                     break
                 else:
@@ -827,7 +840,7 @@ def main():
                 elif opcao_funcionario == "6":
                     menu_exibir_um_funcionario(funcionario)
                 elif opcao_funcionario == "7":
-                    menu_inserir_csv_funcionario(funcionario)
+                    menu_gerar_relatorio_funcionario(funcionario)
                 elif opcao_funcionario == "0":
                     break
                 else:
@@ -850,7 +863,7 @@ def main():
                 elif opcao_produto == "6":
                     menu_exibir_um_produto(produto)
                 elif opcao_produto == "7":
-                    menu_inserir_csv(produto)
+                    menu_gerar_relatorio(produto)
                 elif opcao_produto == "0":
                     break
                 else:
@@ -873,7 +886,7 @@ def main():
                 elif opcao_itens_venda == "6":
                     menu_exibir_um_itens_venda(itens_venda)
                 elif opcao_itens_venda == "7":
-                    menu_inserir_csv(itens_venda)
+                    menu_gerar_relatorio(itens_venda)
                 elif opcao_itens_venda == "0":
                     break
                 else:
@@ -896,13 +909,45 @@ def main():
                 elif opcao_vendas == "6":
                     menu_exibir_um_vendas(vendas)
                 elif opcao_vendas == "7":
-                    menu_inserir_csv(vendas)
+                    menu_gerar_relatorio(vendas)
                 elif opcao_vendas == "0":
                     break
                 else:
                     print("Opção inválida.")
         else:
             print("Opção inválida. Por favor, escolha uma opção válida.")
+            
+            
+def gerar_relatorio(table, nome_arquivo):
+    resultado = table.list_all()
+
+    try:
+        with open(nome_arquivo, mode='w', newline='') as arquivo_csv:
+            writer = csv.writer(arquivo_csv)
+
+            # Obter o número de colunas dinamicamente a partir do resultado
+            num_colunas = len(resultado[0]) if resultado else 0
+
+            if num_colunas > 0:
+                # Escrever o cabeçalho com os nomes das colunas
+                colunas = [f'Coluna {i + 1}' for i in range(num_colunas)]
+                writer.writerow(colunas)
+
+                # Escrever os dados do resultado
+                for row in resultado:
+                    writer.writerow(row)
+                print(f"Relatório exportado para {nome_arquivo}")
+            else:
+                print("Nenhum registro encontrado ou número de colunas é zero.")
+    except Exception as e:
+        print(f"Erro ao gerar relatório: {e}")
+
+def menu_gerar_relatorio(table):
+     
+    nome_arquivo = input("Digite o nome do arquivo CSV para exportar: ")
+    gerar_relatorio(table, nome_arquivo)  # Chamada da função para exportar o relatório
+            
+            
 
 if __name__ == "__main__":
     main()
